@@ -26,9 +26,16 @@ export default function ProfileEdit() {
     switch: user?.switch || ''
   });
 
-  const platformOptions = ['PlayStation', 'Xbox', 'PC', 'Nintendo Switch', 'Mobile'];
+  const platformOptions = ['PS4', 'PS5', 'Xbox One', 'Xbox Series X/S', 'PC', 'Nintendo Switch', 'Mobile'];
   const availabilityOptions = ['Wochentags abends', 'Wochenende', 'Nachts', 'Flexibel'];
-  const timePreferences = ['Abends (18-22 Uhr)', 'Nachts (22-2 Uhr)', 'Flexibel'];
+  const timePreferences = [
+    'Morgens (6-12 Uhr)',
+    'Mittags (12-18 Uhr)',
+    'Abends (18-22 Uhr)',
+    'Nachts (22-2 Uhr)',
+    'Spätnachts (2-6 Uhr)',
+    'Flexibel'
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,8 +56,8 @@ export default function ProfileEdit() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      setError('Bild darf maximal 2MB groß sein');
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Bild darf maximal 10MB groß sein');
       return;
     }
 
