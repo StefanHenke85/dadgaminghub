@@ -29,7 +29,7 @@ export const register = async (req, res) => {
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: true, // Auto-confirm for development
+      email_confirm: false, // Require email confirmation
       user_metadata: {
         username,
         name,
@@ -75,19 +75,10 @@ export const register = async (req, res) => {
         .eq('id', authData.user.id);
     }
 
-    // Generate our own JWT token
-    const token = generateToken(authData.user.id);
-
     res.status(201).json({
-      message: 'Registrierung erfolgreich',
-      token,
-      user: {
-        id: authData.user.id,
-        username,
-        email,
-        name,
-        role: 'user'
-      }
+      message: 'Registrierung erfolgreich! Bitte bestätige deine E-Mail-Adresse, um dich anzumelden.',
+      emailConfirmationRequired: true,
+      email
     });
   } catch (error) {
     console.error('Register error:', error);
