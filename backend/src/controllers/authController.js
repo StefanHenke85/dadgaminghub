@@ -47,19 +47,32 @@ export const register = async (req, res) => {
       });
     }
 
-    // Profile is automatically created via trigger, but we update it with additional data
+    // Create profile directly (don't rely on trigger)
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({
+      .insert({
+        id: authData.user.id,
         username,
         name,
         age: age || null,
-        kids: kids || 0
-      })
-      .eq('id', authData.user.id);
+        kids: kids || 0,
+        role: 'user',
+        online: false,
+        current_activity: 'Offline'
+      });
 
     if (profileError) {
-      console.error('Profile update error:', profileError);
+      console.error('Profile creation error:', profileError);
+      // If profile already exists, update it instead
+      await supabase
+        .from('profiles')
+        .update({
+          username,
+          name,
+          age: age || null,
+          kids: kids || 0
+        })
+        .eq('id', authData.user.id);
     }
 
     // Generate our own JWT token
