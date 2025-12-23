@@ -23,7 +23,8 @@ export default function ProfileEdit() {
     psn: user?.psn || '',
     xbox: user?.xbox || '',
     steam: user?.steam || '',
-    switch: user?.switch || ''
+    switch: user?.switch || '',
+    discord_webhook_url: user?.discord_webhook_url || ''
   });
 
   const platformOptions = ['PS4', 'PS5', 'Xbox One', 'Xbox Series X/S', 'PC', 'Nintendo Switch', 'Mobile'];
@@ -231,6 +232,27 @@ export default function ProfileEdit() {
               </div>
             </div>
 
+            {/* Top Games */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Top Games (kommagetrennt)
+              </label>
+              <input
+                type="text"
+                name="games"
+                value={Array.isArray(formData.games) ? formData.games.join(', ') : formData.games}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  games: e.target.value.split(',').map(g => g.trim()).filter(g => g)
+                }))}
+                placeholder="z.B. Call of Duty, FIFA, Fortnite"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Gib deine Lieblingsspiele getrennt durch Kommas ein
+              </p>
+            </div>
+
             {/* Gaming IDs */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -326,6 +348,33 @@ export default function ProfileEdit() {
                   <option key={time} value={time}>{time}</option>
                 ))}
               </select>
+            </div>
+
+            {/* Discord Webhook URL */}
+            <div className="pt-6 border-t-2 border-gray-200">
+              <div className="bg-indigo-50 border-2 border-indigo-200 rounded-lg p-4 mb-4">
+                <h3 className="text-lg font-bold text-indigo-900 mb-2 flex items-center gap-2">
+                  💬 Discord Integration
+                </h3>
+                <p className="text-sm text-indigo-700 mb-3">
+                  Hinterlege hier einmalig deine Discord Webhook URL. Wenn du dann eine Gaming-Session erstellst, wird automatisch eine Benachrichtigung an deinen Discord-Server gesendet!
+                </p>
+              </div>
+
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Discord Webhook URL (Optional)
+              </label>
+              <input
+                type="url"
+                name="discord_webhook_url"
+                value={formData.discord_webhook_url}
+                onChange={handleChange}
+                placeholder="https://discord.com/api/webhooks/..."
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none font-mono text-sm"
+              />
+              <p className="mt-2 text-xs text-gray-500">
+                📌 So erstellst du einen Webhook: Discord Server → Einstellungen → Integrationen → Webhooks → Neuer Webhook
+              </p>
             </div>
 
             <button

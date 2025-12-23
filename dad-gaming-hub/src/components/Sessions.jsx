@@ -12,7 +12,8 @@ export default function Sessions() {
     platform: '',
     maxPlayers: 4,
     scheduledFor: '',
-    description: ''
+    description: '',
+    discordWebhookUrl: ''
   });
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function Sessions() {
     try {
       await sessionAPI.createSession(formData);
       setShowCreateModal(false);
-      setFormData({ game: '', platform: '', maxPlayers: 4, scheduledFor: '', description: '' });
+      setFormData({ game: '', platform: '', maxPlayers: 4, scheduledFor: '', description: '', discordWebhookUrl: '' });
       loadSessions();
     } catch (error) {
       alert(error.response?.data?.error || 'Fehler beim Erstellen');
@@ -64,84 +65,136 @@ export default function Sessions() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl">Lädt Sessions...</div>
+      <div className="min-h-screen bg-[#0a0e27] flex items-center justify-center">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" style={{animationDuration: '1.5s', animationDirection: 'reverse'}}></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">Gaming Sessions</h1>
+    <div className="min-h-screen bg-[#0a0e27] text-white pt-24 pb-12 px-4 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 right-10 w-40 h-40 bg-contain bg-no-repeat opacity-40" style={{backgroundImage: "url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=200&h=200&fit=crop')"}}></div>
+          <div className="absolute bottom-20 left-20 w-36 h-36 bg-contain bg-no-repeat opacity-30" style={{backgroundImage: "url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=200&h=200&fit=crop')"}}></div>
+        </div>
+        <div className="absolute top-0 right-1/4 w-125 h-125 bg-indigo-600/10 rounded-full blur-[150px] animate-pulse"></div>
+        <div className="absolute bottom-0 left-1/4 w-125 h-125 bg-purple-600/10 rounded-full blur-[150px] animate-pulse" style={{animationDelay: '1s'}}></div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+          <div>
+            <h1 className="text-5xl font-black uppercase italic tracking-tighter mb-2">
+              <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">GAMING</span>
+              <span className="text-white"> SESSIONS</span>
+            </h1>
+            <p className="text-slate-400 font-medium">Organisiere epische Zock-Sessions mit deinem Squad</p>
+          </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg"
+            className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:via-purple-500 hover:to-pink-500 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-wider shadow-xl shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all hover:scale-105"
           >
-            + Neue Session
+            ⚡ Neue Session
           </button>
         </div>
 
+        {/* Sessions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sessions.map(session => (
-            <div key={session._id} className="bg-white rounded-2xl shadow-xl p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800">{session.game}</h3>
-                  <p className="text-sm text-gray-600">{session.platform}</p>
+            <div key={session.id} className="group relative">
+              {/* Glow Effect */}
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl opacity-0 group-hover:opacity-30 blur transition-all duration-500"></div>
+
+              {/* Card */}
+              <div className="relative bg-slate-900/80 backdrop-blur-xl border border-slate-800/50 rounded-3xl p-6 transition-all duration-300 group-hover:border-indigo-500/30">
+
+                {/* Header */}
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-black text-white uppercase italic tracking-tight mb-1">{session.game}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-indigo-400 text-xs font-bold uppercase">🎮 {session.platform}</span>
+                    </div>
+                  </div>
+                  {session.host?.id === user?.id && (
+                    <button
+                      onClick={() => handleDelete(session.id)}
+                      className="w-10 h-10 flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all border border-red-500/20"
+                      title="Session löschen"
+                    >
+                      🗑️
+                    </button>
+                  )}
                 </div>
-                {session.host._id === user?.id && (
+
+                {/* Description */}
+                {session.description && (
+                  <p className="text-slate-400 text-sm mb-4 line-clamp-2 italic">"{session.description}"</p>
+                )}
+
+                {/* Info Grid */}
+                <div className="space-y-3 mb-4 text-sm">
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <span className="text-indigo-400 font-bold">👑 Host:</span>
+                    <span className="font-bold">{session.host?.name || 'Unknown'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <span className="text-purple-400 font-bold">📅 Wann:</span>
+                    <span className="font-medium">{new Date(session.scheduled_for).toLocaleString('de-DE', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-pink-400 font-bold">👥 Spieler:</span>
+                    <span className="font-bold text-white">{session.participants?.length || 0}/{session.max_players}</span>
+                  </div>
+                </div>
+
+                {/* Participants */}
+                <div className="flex flex-wrap gap-2 mb-4 min-h-[2rem]">
+                  {session.participants?.map(p => (
+                    <span key={p.id} className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs rounded-lg font-bold uppercase">
+                      {p.name}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Action Button */}
+                {session.participants?.some(p => p.id === user?.id) ? (
+                  <div className="bg-green-500/20 border border-green-500/50 text-green-400 px-4 py-3 rounded-2xl text-center font-black uppercase text-sm">
+                    ✓ Du bist dabei
+                  </div>
+                ) : (session.participants?.length || 0) >= session.max_players ? (
+                  <div className="bg-slate-800/50 border border-slate-700/50 text-slate-500 px-4 py-3 rounded-2xl text-center font-black uppercase text-sm">
+                    Session voll
+                  </div>
+                ) : (
                   <button
-                    onClick={() => handleDelete(session._id)}
-                    className="text-red-600 hover:text-red-800"
+                    onClick={() => handleJoin(session.id)}
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-3 rounded-2xl font-black uppercase text-sm tracking-wider transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40"
                   >
-                    🗑️
+                    ⚡ Beitreten
                   </button>
                 )}
               </div>
-
-              {session.description && (
-                <p className="text-gray-700 text-sm mb-4">{session.description}</p>
-              )}
-
-              <div className="space-y-2 text-sm mb-4">
-                <p><strong>Host:</strong> {session.host.name}</p>
-                <p><strong>Wann:</strong> {new Date(session.scheduledFor).toLocaleString('de-DE')}</p>
-                <p><strong>Spieler:</strong> {session.participants.length}/{session.maxPlayers}</p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                {session.participants.map(p => (
-                  <span key={p._id} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                    {p.name}
-                  </span>
-                ))}
-              </div>
-
-              {session.participants.some(p => p._id === user?.id) ? (
-                <div className="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-center font-semibold">
-                  ✓ Dabei
-                </div>
-              ) : session.participants.length >= session.maxPlayers ? (
-                <div className="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg text-center">
-                  Voll
-                </div>
-              ) : (
-                <button
-                  onClick={() => handleJoin(session._id)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold"
-                >
-                  Beitreten
-                </button>
-              )}
             </div>
           ))}
 
+          {/* Empty State */}
           {sessions.length === 0 && (
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-400 text-lg">Keine Sessions vorhanden</p>
-              <p className="text-gray-500 text-sm mt-2">Erstelle die erste Session!</p>
+            <div className="col-span-full text-center py-20">
+              <div className="text-6xl mb-4 opacity-20">🎮</div>
+              <h3 className="text-2xl font-black text-slate-400 uppercase mb-2">Keine Sessions vorhanden</h3>
+              <p className="text-slate-600">Erstelle die erste Gaming-Session für dein Squad!</p>
             </div>
           )}
         </div>
@@ -149,88 +202,136 @@ export default function Sessions() {
 
       {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-6">Neue Gaming Session</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Spiel</label>
-                <input
-                  type="text"
-                  value={formData.game}
-                  onChange={(e) => setFormData({ ...formData, game: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                  required
-                />
-              </div>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="relative max-w-lg w-full">
+            {/* Glow Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-[3rem] opacity-30 blur-2xl"></div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Plattform</label>
-                <select
-                  value={formData.platform}
-                  onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                  required
-                >
-                  <option value="">Wählen...</option>
-                  <option value="PC">PC</option>
-                  <option value="PlayStation">PlayStation</option>
-                  <option value="Xbox">Xbox</option>
-                  <option value="Nintendo Switch">Nintendo Switch</option>
-                </select>
-              </div>
+            {/* Modal Content */}
+            <div className="relative bg-slate-900/95 backdrop-blur-xl border border-slate-800/50 rounded-[3rem] p-8">
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Max. Spieler</label>
-                <input
-                  type="number"
-                  value={formData.maxPlayers}
-                  onChange={(e) => setFormData({ ...formData, maxPlayers: parseInt(e.target.value) })}
-                  min="2"
-                  max="16"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Wann?</label>
-                <input
-                  type="datetime-local"
-                  value={formData.scheduledFor}
-                  onChange={(e) => setFormData({ ...formData, scheduledFor: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Beschreibung</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows="3"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                  placeholder="Optional..."
-                />
-              </div>
-
-              <div className="flex gap-3 mt-6">
+              {/* Header */}
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <h2 className="text-3xl font-black uppercase italic tracking-tight mb-2">
+                    <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
+                      Neue Session
+                    </span>
+                  </h2>
+                  <p className="text-slate-400 text-sm">Organisiere eine Gaming-Session</p>
+                </div>
                 <button
-                  type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold"
+                  className="w-10 h-10 bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 rounded-xl flex items-center justify-center transition-all"
                 >
-                  Abbrechen
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-lg font-semibold"
-                >
-                  Erstellen
+                  ✕
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={handleCreate} className="space-y-5">
+                {/* Game */}
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Spiel</label>
+                  <input
+                    type="text"
+                    value={formData.game}
+                    onChange={(e) => setFormData({ ...formData, game: e.target.value })}
+                    className="w-full px-5 py-3 bg-slate-800/50 border border-slate-700/50 rounded-2xl outline-none focus:border-indigo-500/50 transition-all text-white font-medium"
+                    placeholder="z.B. Call of Duty, FIFA"
+                    required
+                  />
+                </div>
+
+                {/* Platform */}
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Plattform</label>
+                  <select
+                    value={formData.platform}
+                    onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+                    className="w-full px-5 py-3 bg-slate-800/50 border border-slate-700/50 rounded-2xl outline-none focus:border-indigo-500/50 transition-all text-white font-medium"
+                    required
+                  >
+                    <option value="">Wählen...</option>
+                    <option value="PC">💻 PC</option>
+                    <option value="PlayStation">🎮 PlayStation</option>
+                    <option value="Xbox">🎯 Xbox</option>
+                    <option value="Nintendo Switch">🕹️ Nintendo Switch</option>
+                  </select>
+                </div>
+
+                {/* Max Players */}
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Max. Spieler</label>
+                  <input
+                    type="number"
+                    value={formData.maxPlayers}
+                    onChange={(e) => setFormData({ ...formData, maxPlayers: parseInt(e.target.value) })}
+                    min="2"
+                    max="16"
+                    className="w-full px-5 py-3 bg-slate-800/50 border border-slate-700/50 rounded-2xl outline-none focus:border-indigo-500/50 transition-all text-white font-medium"
+                    required
+                  />
+                </div>
+
+                {/* Scheduled Time */}
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Wann?</label>
+                  <input
+                    type="datetime-local"
+                    value={formData.scheduledFor}
+                    onChange={(e) => setFormData({ ...formData, scheduledFor: e.target.value })}
+                    className="w-full px-5 py-3 bg-slate-800/50 border border-slate-700/50 rounded-2xl outline-none focus:border-indigo-500/50 transition-all text-white font-medium"
+                    required
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Beschreibung</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows="3"
+                    className="w-full px-5 py-3 bg-slate-800/50 border border-slate-700/50 rounded-2xl outline-none focus:border-indigo-500/50 transition-all text-white font-medium resize-none"
+                    placeholder="Optional: Was habt ihr vor?"
+                  />
+                </div>
+
+                {/* Discord Webhook URL */}
+                <div className="pt-4 border-t border-slate-700/50">
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">
+                    💬 Discord Webhook URL (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.discordWebhookUrl}
+                    onChange={(e) => setFormData({ ...formData, discordWebhookUrl: e.target.value })}
+                    className="w-full px-5 py-3 bg-slate-800/50 border border-slate-700/50 rounded-2xl outline-none focus:border-indigo-500/50 transition-all text-white font-medium"
+                    placeholder="https://discord.com/api/webhooks/..."
+                  />
+                  <p className="text-xs text-slate-500 mt-2 italic">
+                    📌 Wenn angegeben, wird eine Nachricht mit den Session-Details automatisch an deinen Discord-Server gesendet!
+                  </p>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="flex-1 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 py-4 rounded-2xl font-black uppercase tracking-wider transition-all"
+                  >
+                    Abbrechen
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:via-purple-500 hover:to-pink-500 text-white py-4 rounded-2xl font-black uppercase tracking-wider shadow-xl shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all"
+                  >
+                    ⚡ Erstellen
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

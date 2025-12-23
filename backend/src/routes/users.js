@@ -6,6 +6,8 @@ import {
   acceptFriendRequest,
   declineFriendRequest,
   removeFriend,
+  getFriends,
+  getFriendRequests,
   updateOnlineStatus
 } from '../controllers/userController.js';
 import { auth } from '../middleware/auth.js';
@@ -18,13 +20,17 @@ router.use(auth);
 // Get all users
 router.get('/', getUsers);
 
+// Friends
+router.get('/friends/list', getFriends);
+router.get('/friends/requests', getFriendRequests);
+
 // Get single user
 router.get('/:id', getUser);
 
 // Friend management
 router.post('/:id/friend-request', sendFriendRequest);
-router.post('/:id/accept-friend', acceptFriendRequest);
-router.post('/:id/decline-friend', declineFriendRequest);
+router.post('/friend-requests/:id/accept', acceptFriendRequest);
+router.post('/friend-requests/:id/decline', declineFriendRequest);
 router.delete('/:id/friend', removeFriend);
 
 // Update online status

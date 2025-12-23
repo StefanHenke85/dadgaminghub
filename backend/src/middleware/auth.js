@@ -22,6 +22,14 @@ export const auth = async (req, res, next) => {
       return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
     }
 
+    // Update last_seen timestamp (fire and forget, don't wait)
+    supabase
+      .from('profiles')
+      .update({ last_seen: new Date().toISOString() })
+      .eq('id', user.id)
+      .then(() => {})
+      .catch(err => console.error('Failed to update last_seen:', err));
+
     req.user = user;
     req.userId = user.id;
     next();

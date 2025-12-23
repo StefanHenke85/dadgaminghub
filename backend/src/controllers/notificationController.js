@@ -1,30 +1,20 @@
-import Notification from '../models/Notification.js';
+import { supabase } from '../config/supabase.js';
 
 export const getNotifications = async (req, res) => {
   try {
-    const { limit = 20, offset = 0, unreadOnly = false } = req.query;
-    const filter = { recipient: req.userId };
+    const { data: notifications, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('recipient_id', req.userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
 
-    if (unreadOnly === 'true') {
-      filter.read = false;
+    if (error) {
+      console.error('Get notifications error:', error);
+      return res.status(500).json({ error: 'Fehler beim Laden der Benachrichtigungen' });
     }
 
-    const notifications = await Notification.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(parseInt(limit))
-      .skip(parseInt(offset))
-      .populate('sender', 'username name avatar')
-      .populate('relatedSession', 'title game scheduledDate');
-
-    const unreadCount = await Notification.countDocuments({
-      recipient: req.userId,
-      read: false
-    });
-
-    res.json({
-      notifications,
-      unreadCount
-    });
+    res.json(notifications || []);
   } catch (error) {
     console.error('Get notifications error:', error);
     res.status(500).json({ error: 'Fehler beim Laden der Benachrichtigungen' });
@@ -35,23 +25,18 @@ export const markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const notification = await Notification.findOne({
-      _id: id,
-      recipient: req.userId
-    });
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true, read_at: new Date().toISOString() })
+      .eq('id', id)
+      .eq('recipient_id', req.userId);
 
-    if (!notification) {
-      return res.status(404).json({ error: 'Benachrichtigung nicht gefunden' });
+    if (error) {
+      console.error('Mark as read error:', error);
+      return res.status(500).json({ error: 'Fehler beim Markieren der Benachrichtigung' });
     }
 
-    notification.read = true;
-    notification.readAt = new Date();
-    await notification.save();
-
-    res.json({
-      message: 'Benachrichtigung als gelesen markiert',
-      notification
-    });
+    res.json({ message: 'Benachrichtigung als gelesen markiert' });
   } catch (error) {
     console.error('Mark notification as read error:', error);
     res.status(500).json({ error: 'Fehler beim Markieren der Benachrichtigung' });
@@ -60,18 +45,16 @@ export const markAsRead = async (req, res) => {
 
 export const markAllAsRead = async (req, res) => {
   try {
-    await Notification.updateMany(
-      {
-        recipient: req.userId,
-        read: false
-      },
-      {
-        $set: {
-          read: true,
-          readAt: new Date()
-        }
-      }
-    );
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true, read_at: new Date().toISOString() })
+      .eq('recipient_id', req.userId)
+      .eq('read', false);
+
+    if (error) {
+      console.error('Mark all as read error:', error);
+      return res.status(500).json({ error: 'Fehler beim Markieren der Benachrichtigungen' });
+    }
 
     res.json({ message: 'Alle Benachrichtigungen als gelesen markiert' });
   } catch (error) {
@@ -84,13 +67,15 @@ export const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const notification = await Notification.findOneAndDelete({
-      _id: id,
-      recipient: req.userId
-    });
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('id', id)
+      .eq('recipient_id', req.userId);
 
-    if (!notification) {
-      return res.status(404).json({ error: 'Benachrichtigung nicht gefunden' });
+    if (error) {
+      console.error('Delete notification error:', error);
+      return res.status(500).json({ error: 'Fehler beim Löschen der Benachrichtigung' });
     }
 
     res.json({ message: 'Benachrichtigung gelöscht' });

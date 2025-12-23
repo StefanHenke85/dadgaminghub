@@ -53,7 +53,10 @@ export default function Register() {
     const result = await register(registerData);
 
     if (result.success) {
-      navigate('/setup-profile');
+      // Show success message
+      setError('');
+      alert('✅ Registrierung erfolgreich!\n\nBitte bestätige deine E-Mail-Adresse, um dich anzumelden.\n\nÜberprüfe dein Postfach (auch den Spam-Ordner).');
+      navigate('/login');
     } else {
       setError(result.error);
     }

@@ -48,9 +48,11 @@ export const authAPI = {
 export const userAPI = {
   getUsers: (params) => api.get('/users', { params }),
   getUser: (id) => api.get(`/users/${id}`),
-  sendFriendRequest: (id) => api.post(`/users/${id}/friend-request`),
-  acceptFriendRequest: (id) => api.post(`/users/${id}/accept-friend`),
-  declineFriendRequest: (id) => api.post(`/users/${id}/decline-friend`),
+  sendFriendRequest: (id, data) => api.post(`/users/${id}/friend-request`, data),
+  getFriendRequests: () => api.get('/users/friends/requests'),
+  getFriends: () => api.get('/users/friends/list'),
+  acceptFriendRequest: (id) => api.post(`/users/friend-requests/${id}/accept`),
+  declineFriendRequest: (id) => api.post(`/users/friend-requests/${id}/decline`),
   removeFriend: (id) => api.delete(`/users/${id}/friend`),
   updateStatus: (data) => api.put('/users/status', data)
 };

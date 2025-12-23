@@ -13,6 +13,7 @@ import messageRoutes from './routes/messages.js';
 import notificationRoutes from './routes/notifications.js';
 import adminRoutes from './routes/admin.js';
 import testRoutes from './routes/test.js';
+import statisticsRoutes from './routes/statistics.js';
 
 // Load environment variables
 dotenv.config();
@@ -39,6 +40,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/test', testRoutes);
+app.use('/api/statistics', statisticsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

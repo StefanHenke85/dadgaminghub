@@ -4,14 +4,27 @@ Eine moderne Full-Stack Web-Anwendung für Gaming-Väter zum Vernetzen und Organ
 
 ## 🎮 Features
 
+### ✅ Verfügbar
 - **Benutzer-Authentifizierung**: Registrierung und Login mit Supabase Auth
 - **Gaming-Profile**: Zeige Lieblingsspiele, Plattformen (PC, PS5, Xbox, Switch) und Verfügbarkeit
+- **Online-Status Tracking**: Automatisches Tracking basierend auf Aktivität (< 5 Min = Online)
 - **Benutzer-Suche**: Finde andere Väter nach Spielen, Plattformen und Online-Status
 - **Freundschaftssystem**: Sende und verwalte Freundschaftsanfragen
 - **Gaming-Sessions**: Erstelle und organisiere gemeinsame Gaming-Sessions
-- **Echtzeit-Chat**: Direktnachrichten und Session-Chat (coming soon)
-- **Benachrichtigungen**: Echtzeit-Updates zu Anfragen und Events (coming soon)
+- **Discord Integration**: Automatische Webhook-Benachrichtigungen bei neuen Sessions
+- **Echtzeit-Chat**: Direktnachrichten und Session-Chat
 - **Responsive Design**: Funktioniert perfekt auf Desktop und Mobile
+
+### 🚧 In Entwicklung / Geplant
+- **Gaming-Statistiken**: Automatisches Tracking von:
+  - Anzahl gespielter Sessions
+  - Gesamte Spielzeit
+  - Lieblingsspiele (basierend auf Häufigkeit)
+  - Session-Teilnahme-Rate
+  - Beliebte Plattformen
+- **Achievements & Badges**: Sammle Abzeichen für Meilensteine
+- **Benachrichtigungen**: Erweiterte Echtzeit-Updates
+- **Session-Kalender**: Übersicht aller anstehenden Sessions
 
 ## 🛠 Tech Stack
 

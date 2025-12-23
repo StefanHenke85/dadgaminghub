@@ -12,7 +12,13 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(del \"c:\\\\Users\\\\Stefan\\\\Desktop\\\\Henke-Net Projeklte\\\\vatergames\\\\backend\\\\src\\\\models\\\\User.js\" \"c:\\\\Users\\\\Stefan\\\\Desktop\\\\Henke-Net Projeklte\\\\vatergames\\\\backend\\\\src\\\\models\\\\GamingSession.js\" \"c:\\\\Users\\\\Stefan\\\\Desktop\\\\Henke-Net Projeklte\\\\vatergames\\\\backend\\\\src\\\\models\\\\Message.js\" \"c:\\\\Users\\\\Stefan\\\\Desktop\\\\Henke-Net Projeklte\\\\vatergames\\\\backend\\\\src\\\\models\\\\Notification.js\")",
+      "Bash(npm uninstall:*)",
+      "Bash(npm run build:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(cat:*)"
     ]
   }
 }

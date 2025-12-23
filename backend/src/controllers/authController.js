@@ -25,16 +25,18 @@ export const register = async (req, res) => {
       });
     }
 
-    // Create auth user in Supabase
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    // Create auth user in Supabase with email confirmation
+    const { data: authData, error: authError } = await supabaseAuth.auth.signUp({
       email,
       password,
-      email_confirm: false, // Require email confirmation
-      user_metadata: {
-        username,
-        name,
-        age,
-        kids: kids || 0
+      options: {
+        data: {
+          username,
+          name,
+          age,
+          kids: kids || 0
+        },
+        emailRedirectTo: `${process.env.CLIENT_URL || 'http://localhost:5173'}/login`
       }
     });
 
@@ -123,12 +125,13 @@ export const login = async (req, res) => {
       });
     }
 
-    // Update online status
+    // Update online status and last_seen
     await supabase
       .from('profiles')
       .update({
         online: true,
-        current_activity: 'Online'
+        current_activity: 'Online',
+        last_seen: new Date().toISOString()
       })
       .eq('id', authData.user.id);
 
