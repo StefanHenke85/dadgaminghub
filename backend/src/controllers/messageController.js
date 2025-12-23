@@ -10,7 +10,8 @@ export const sendMessage = async (req, res) => {
         sender_id: req.userId,
         recipient_id: recipient || null,
         session_id: sessionId || null,
-        content
+        content,
+        type: 'direct'
       })
       .select()
       .single();
@@ -23,6 +24,60 @@ export const sendMessage = async (req, res) => {
     res.status(201).json(message);
   } catch (error) {
     console.error('Send message error:', error);
+    res.status(500).json({ error: 'Serverfehler beim Senden der Nachricht' });
+  }
+};
+
+// General chat messages (public channel)
+export const getGeneralMessages = async (req, res) => {
+  try {
+    const { data: messages, error } = await supabase
+      .from('messages')
+      .select(`
+        *,
+        sender:profiles!messages_sender_id_fkey(id, name, username, avatar)
+      `)
+      .eq('type', 'general')
+      .order('created_at', { ascending: true })
+      .limit(100);
+
+    if (error) {
+      console.error('Get general messages error:', error);
+      return res.status(500).json({ error: 'Fehler beim Laden der Nachrichten' });
+    }
+
+    res.json(messages || []);
+  } catch (error) {
+    console.error('Get general messages error:', error);
+    res.status(500).json({ error: 'Serverfehler beim Laden der Nachrichten' });
+  }
+};
+
+export const sendGeneralMessage = async (req, res) => {
+  try {
+    const { content } = req.body;
+
+    const { data: message, error } = await supabase
+      .from('messages')
+      .insert({
+        sender_id: req.userId,
+        content,
+        type: 'general'
+      })
+      .select(`
+        *,
+        sender:profiles!messages_sender_id_fkey(id, name, username, avatar)
+      `)
+      .single();
+
+    if (error) {
+      console.error('Send general message error:', error);
+      return res.status(500).json({ error: 'Fehler beim Senden der Nachricht' });
+    }
+
+    res.status(201).json(message);
+  } catch (error) {
+    console.error('Send general message error:', error);
     res.status(500).json({ error: 'Serverfehler beim Senden der Nachricht' });
   }
 };

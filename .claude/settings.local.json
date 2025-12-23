@@ -18,7 +18,8 @@
       "Bash(npm run build:*)",
       "Bash(ssh:*)",
       "Bash(scp:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(git push)"
     ]
   }
 }

@@ -4,7 +4,9 @@ import {
   getConversation,
   getSessionMessages,
   getConversations,
-  markAsRead
+  markAsRead,
+  getGeneralMessages,
+  sendGeneralMessage
 } from '../controllers/messageController.js';
 import { auth } from '../middleware/auth.js';
 
@@ -24,6 +26,10 @@ router.get('/conversation/:userId', getConversation);
 
 // Get session messages
 router.get('/session/:sessionId', getSessionMessages);
+
+// General chat messages
+router.get('/general', getGeneralMessages);
+router.post('/general', sendGeneralMessage);
 
 // Mark messages as read
 router.put('/read/:userId', markAsRead);

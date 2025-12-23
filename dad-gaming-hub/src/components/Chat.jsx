@@ -44,7 +44,19 @@ export default function Chat() {
   const loadConversations = async () => {
     try {
       const response = await messageAPI.getConversations();
-      setConversations(response.data);
+      // Add General channel as first item
+      const generalChannel = {
+        user: {
+          _id: 'general',
+          id: 'general',
+          name: 'Allgemeiner Chat',
+          username: 'everyone',
+          avatar: null
+        },
+        lastMessage: 'Öffentlicher Chat für alle',
+        unreadCount: 0
+      };
+      setConversations([generalChannel, ...response.data]);
     } catch (error) {
       console.error('Error loading conversations:', error);
     }
@@ -52,9 +64,24 @@ export default function Chat() {
 
   const loadMessages = async (userId) => {
     try {
-      const response = await messageAPI.getConversation(userId);
-      setMessages(response.data);
-      setSelectedConversation(conversations.find(c => c.user._id === userId));
+      if (userId === 'general') {
+        // Load general channel messages (all messages marked as type='general')
+        const response = await messageAPI.getGeneralMessages();
+        setMessages(response.data || []);
+        setSelectedConversation({
+          user: {
+            _id: 'general',
+            id: 'general',
+            name: 'Allgemeiner Chat',
+            username: 'everyone',
+            avatar: null
+          }
+        });
+      } else {
+        const response = await messageAPI.getConversation(userId);
+        setMessages(response.data);
+        setSelectedConversation(conversations.find(c => c.user._id === userId || c.user.id === userId));
+      }
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -65,16 +92,29 @@ export default function Chat() {
     if (!newMessage.trim() || !selectedConversation) return;
 
     try {
-      const response = await messageAPI.sendMessage({
-        recipient: selectedConversation.user._id,
-        content: newMessage
-      });
+      if (selectedConversation.user._id === 'general' || selectedConversation.user.id === 'general') {
+        // Send to general channel
+        const response = await messageAPI.sendGeneralMessage({
+          content: newMessage
+        });
 
-      setMessages(prev => [...prev, response.data]);
-      socket.emit('message:send', {
-        recipientId: selectedConversation.user._id,
-        message: response.data
-      });
+        setMessages(prev => [...prev, response.data]);
+        socket.emit('message:general', {
+          message: response.data
+        });
+      } else {
+        // Send direct message
+        const response = await messageAPI.sendMessage({
+          recipient: selectedConversation.user._id || selectedConversation.user.id,
+          content: newMessage
+        });
+
+        setMessages(prev => [...prev, response.data]);
+        socket.emit('message:send', {
+          recipientId: selectedConversation.user._id || selectedConversation.user.id,
+          message: response.data
+        });
+      }
 
       setNewMessage('');
     } catch (error) {

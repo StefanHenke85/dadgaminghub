@@ -73,7 +73,9 @@ export const messageAPI = {
   getConversations: () => api.get('/messages/conversations'),
   getConversation: (userId) => api.get(`/messages/conversation/${userId}`),
   getSessionMessages: (sessionId) => api.get(`/messages/session/${sessionId}`),
-  markAsRead: (userId) => api.put(`/messages/read/${userId}`)
+  markAsRead: (userId) => api.put(`/messages/read/${userId}`),
+  getGeneralMessages: () => api.get('/messages/general'),
+  sendGeneralMessage: (data) => api.post('/messages/general', data)
 };
 
 // Notification endpoints
